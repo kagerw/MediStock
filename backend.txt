@@ -1,0 +1,348 @@
+// ===========================================
+// package.json
+// ===========================================
+{
+  "name": "medicine-inventory-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@vercel/postgres": "^0.5.0",
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
+
+// ===========================================
+// /api/medicines/index.js - 薬一覧取得・追加
+// ===========================================
+import { sql } from '@vercel/postgres';
+
+export default async function handler(req, res) {
+  // CORS設定
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  try {
+    // テーブル作成（初回のみ）
+    await sql`
+      CREATE TABLE IF NOT EXISTS medicines (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 0,
+        dosage VARCHAR(100),
+        frequency VARCHAR(100),
+        notes TEXT,
+        added_date TIMESTAMP DEFAULT NOW(),
+        updated_date TIMESTAMP DEFAULT NOW()
+      )
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS medicine_history (
+        id SERIAL PRIMARY KEY,
+        action VARCHAR(50) NOT NULL,
+        medicine_name VARCHAR(255) NOT NULL,
+        quantity INTEGER NOT NULL,
+        notes TEXT,
+        created_date TIMESTAMP DEFAULT NOW()
+      )
+    `;
+
+    if (req.method === 'GET') {
+      // 薬一覧取得
+      const result = await sql`
+        SELECT 
+          id,
+          name,
+          quantity,
+          dosage,
+          frequency,
+          notes,
+          TO_CHAR(added_date, 'YYYY/MM/DD') as added_date
+        FROM medicines 
+        ORDER BY added_date DESC
+      `;
+      
+      return res.status(200).json({
+        success: true,
+        data: result.rows
+      });
+
+    } else if (req.method === 'POST') {
+      // 薬追加
+      const { name, quantity, dosage, frequency, notes } = req.body;
+
+      if (!name || !quantity) {
+        return res.status(400).json({
+          success: false,
+          error: '薬の名前と数量は必須です'
+        });
+      }
+
+      // 薬をデータベースに追加
+      const medicineResult = await sql`
+        INSERT INTO medicines (name, quantity, dosage, frequency, notes)
+        VALUES (${name}, ${quantity}, ${dosage || ''}, ${frequency || ''}, ${notes || ''})
+        RETURNING *
+      `;
+
+      // 履歴に追加
+      const historyNotes = [dosage, frequency].filter(Boolean).join(', ');
+      await sql`
+        INSERT INTO medicine_history (action, medicine_name, quantity, notes)
+        VALUES ('処方追加', ${name}, ${quantity}, ${historyNotes})
+      `;
+
+      return res.status(201).json({
+        success: true,
+        data: medicineResult.rows[0]
+      });
+    }
+
+  } catch (error) {
+    console.error('Database error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'データベースエラーが発生しました'
+    });
+  }
+
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
+}
+
+// ===========================================
+// /api/medicines/[id].js - 薬の更新・削除
+// ===========================================
+import { sql } from '@vercel/postgres';
+
+export default async function handler(req, res) {
+  const { id } = req.query;
+
+  // CORS設定
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  try {
+    if (req.method === 'PUT') {
+      // 薬の服用（在庫を1減らす）
+      const { action } = req.body;
+
+      if (action === 'take') {
+        // 現在の薬情報を取得
+        const currentMedicine = await sql`
+          SELECT * FROM medicines WHERE id = ${id}
+        `;
+
+        if (currentMedicine.rows.length === 0) {
+          return res.status(404).json({
+            success: false,
+            error: '薬が見つかりません'
+          });
+        }
+
+        const medicine = currentMedicine.rows[0];
+
+        if (medicine.quantity <= 0) {
+          return res.status(400).json({
+            success: false,
+            error: '在庫がありません'
+          });
+        }
+
+        // 在庫を1減らす
+        const updateResult = await sql`
+          UPDATE medicines 
+          SET quantity = quantity - 1, updated_date = NOW()
+          WHERE id = ${id}
+          RETURNING *
+        `;
+
+        // 履歴に追加
+        await sql`
+          INSERT INTO medicine_history (action, medicine_name, quantity)
+          VALUES ('服用', ${medicine.name}, 1)
+        `;
+
+        return res.status(200).json({
+          success: true,
+          data: updateResult.rows[0]
+        });
+      }
+
+    } else if (req.method === 'DELETE') {
+      // 薬削除
+      const deleteResult = await sql`
+        DELETE FROM medicines WHERE id = ${id}
+        RETURNING name
+      `;
+
+      if (deleteResult.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: '薬が見つかりません'
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: `${deleteResult.rows[0].name}を削除しました`
+      });
+    }
+
+  } catch (error) {
+    console.error('Database error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'データベースエラーが発生しました'
+    });
+  }
+
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
+}
+
+// ===========================================
+// /api/history.js - 履歴取得
+// ===========================================
+import { sql } from '@vercel/postgres';
+
+export default async function handler(req, res) {
+  // CORS設定
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method === 'GET') {
+    try {
+      const result = await sql`
+        SELECT 
+          id,
+          action,
+          medicine_name,
+          quantity,
+          notes,
+          TO_CHAR(created_date, 'YYYY/MM/DD HH24:MI:SS') as date
+        FROM medicine_history 
+        ORDER BY created_date DESC
+        LIMIT 50
+      `;
+
+      return res.status(200).json({
+        success: true,
+        data: result.rows
+      });
+
+    } catch (error) {
+      console.error('Database error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'データベースエラーが発生しました'
+      });
+    }
+  }
+
+  return res.status(405).json({
+    success: false,
+    error: 'Method not allowed'
+  });
+}
+
+// ===========================================
+// vercel.json - Vercel設定
+// ===========================================
+{
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "POSTGRES_URL": "@postgres_url"
+  }
+}
+
+// ===========================================
+// .env.local - 環境変数（開発用）
+// ===========================================
+# Vercel Postgres接続URL
+POSTGRES_URL="your_postgres_connection_string"
+
+# 本番環境ではVercelの環境変数に設定
+
+// ===========================================
+// デプロイ手順
+// ===========================================
+
+/*
+1. Vercelアカウント作成・ログイン
+   npm i -g vercel
+   vercel login
+
+2. PostgreSQLデータベース作成
+   - Vercelダッシュボードで新しいPostgresデータベースを作成
+   - 接続URLを環境変数に設定
+
+3. プロジェクトデプロイ
+   vercel --prod
+
+4. 環境変数設定
+   - VercelダッシュボードでPOSTGRES_URLを設定
+
+5. フロントエンドの設定
+   - API_BASE_URLをVercelのデプロイURLに設定
+*/
+
+// ===========================================
+// API使用例
+// ===========================================
+
+/*
+// 薬一覧取得
+GET https://your-app.vercel.app/api/medicines
+
+// 薬追加
+POST https://your-app.vercel.app/api/medicines
+{
+  "name": "ロキソニン錠",
+  "quantity": 30,
+  "dosage": "1錠",
+  "frequency": "1日3回食後",
+  "notes": "胃に注意"
+}
+
+// 薬服用（在庫-1）
+PUT https://your-app.vercel.app/api/medicines/1
+{
+  "action": "take"
+}
+
+// 薬削除
+DELETE https://your-app.vercel.app/api/medicines/1
+
+// 履歴取得
+GET https://your-app.vercel.app/api/history
+*/
