@@ -1,0 +1,27 @@
+// ===========================================
+// ファイル構成
+// ===========================================
+/*
+src/
+├── App.jsx                    // メインアプリ（シンプル化）
+├── contexts/
+│   └── AuthContext.jsx        // 認証コンテキスト
+├── hooks/
+│   └── useMedicine.js         // 薬管理カスタムフック
+├── components/
+│   ├── auth/
+│   │   └── LoginForm.jsx      // ログインフォーム
+│   ├── layout/
+│   │   ├── Header.jsx         // ヘッダー
+│   │   └── Footer.jsx         // フッター
+│   ├── ui/
+│   │   ├── ErrorAlert.jsx     // エラーアラート
+│   │   ├── StockAlert.jsx     // 在庫アラート
+│   │   └── LoadingSpinner.jsx // ローディング
+│   └── medicine/
+│       ├── MedicineCard.jsx   // 薬カード
+│       ├── MedicineList.jsx   // 薬一覧
+│       ├── AddMedicineForm.jsx// 薬追加フォーム
+│       └── MedicineHistory.jsx// 履歴
+└── utils/
+    └── api.js                 // API関数
