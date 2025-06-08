@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, History, RefreshCw, Pill } from 'lucide-react';
+import { Plus, History, RefreshCw, Pill, LogOut, User } from 'lucide-react';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
 const Header = ({ 
@@ -7,7 +7,9 @@ const Header = ({
   showHistory, 
   onToggleHistory, 
   onToggleAddForm, 
-  onRefresh 
+  onRefresh,
+  user,
+  onLogout
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -17,32 +19,53 @@ const Header = ({
           <h1 className="text-2xl font-bold text-gray-800">薬の在庫管理</h1>
           {loading && <LoadingSpinner />}
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onToggleHistory}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              showHistory 
-                ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <History className="w-4 h-4" />
-            {showHistory ? '履歴を閉じる' : '履歴を表示'}
-          </button>
-          <button
-            onClick={onToggleAddForm}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            薬を追加
-          </button>
-          <button
-            onClick={onRefresh}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            更新
-          </button>
+        
+        <div className="flex items-center gap-4">
+          {/* ユーザー情報 */}
+          {user && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <User className="w-4 h-4" />
+              <span className="text-sm">{user.username}</span>
+            </div>
+          )}
+          
+          {/* 操作ボタン */}
+          <div className="flex gap-2">
+            <button
+              onClick={onToggleHistory}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                showHistory 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              {showHistory ? '履歴を閉じる' : '履歴を表示'}
+            </button>
+            <button
+              onClick={onToggleAddForm}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              薬を追加
+            </button>
+            <button
+              onClick={onRefresh}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              更新
+            </button>
+            {user && (
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                ログアウト
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
