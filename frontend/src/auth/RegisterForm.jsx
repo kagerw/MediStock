@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { register } from '../../utils/api';
+import { register } from '../utils/api';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import ErrorAlert from '../ui/ErrorAlert';
 

@@ -31,8 +31,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
       <h2 className="text-lg font-semibold text-gray-800 mb-4">新しい薬を追加</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">薬の名前 *</label>
+          <label htmlFor="medicine-name" className="block text-sm font-medium text-gray-700 mb-1">薬の名前 *</label>
           <input
+            id="medicine-name"
             type="text"
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
@@ -41,8 +42,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">数量 *</label>
+          <label htmlFor="medicine-quantity" className="block text-sm font-medium text-gray-700 mb-1">数量 *</label>
           <input
+            id="medicine-quantity"
             type="number"
             value={formData.quantity}
             onChange={(e) => handleChange('quantity', e.target.value)}
@@ -52,8 +54,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">用量</label>
+          <label htmlFor="medicine-dosage" className="block text-sm font-medium text-gray-700 mb-1">用量</label>
           <input
+            id="medicine-dosage"
             type="text"
             value={formData.dosage}
             onChange={(e) => handleChange('dosage', e.target.value)}
@@ -62,8 +65,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">服用頻度</label>
+          <label htmlFor="medicine-frequency" className="block text-sm font-medium text-gray-700 mb-1">服用頻度</label>
           <input
+            id="medicine-frequency"
             type="text"
             value={formData.frequency}
             onChange={(e) => handleChange('frequency', e.target.value)}
@@ -73,8 +77,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
         </div>
       </div>
       <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
+        <label htmlFor="medicine-notes" className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
         <textarea
+          id="medicine-notes"
           value={formData.notes}
           onChange={(e) => handleChange('notes', e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

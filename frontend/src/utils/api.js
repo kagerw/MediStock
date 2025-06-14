@@ -1,4 +1,20 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8787/api';
+
+// セキュリティ強化：入力サニタイゼーション
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  return input.trim().replace(/[<>'"&]/g, '');
+};
+
+// セキュリティ強化：入力バリデーション
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+  return password.length >= 6; // 既存ユーザーとの互換性のため緩和
+};
 
 // ローカルストレージからトークンを取得
 const getToken = () => {
@@ -14,18 +30,63 @@ const getAuthHeaders = () => {
   };
 };
 
+// セキュリティ強化：APIリクエストのラッパー
+const secureApiRequest = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'X-Requested-With': 'XMLHttpRequest', // CSRF対策
+    }
+  });
+
+  // レート制限エラーのハンドリング
+  if (response.status === 429) {
+    const result = await response.json();
+    throw new Error(result.error || 'リクエストが多すぎます。しばらく待ってから再試行してください。');
+  }
+
+  // アカウントロックエラーのハンドリング
+  if (response.status === 423) {
+    const result = await response.json();
+    throw new Error(result.error || 'アカウントがロックされています。');
+  }
+
+  return response;
+};
+
 // ===========================================================================
 // 認証関連のAPI
 // ===========================================================================
 
-// ユーザー登録
+// ユーザー登録（セキュリティ強化版）
 export const register = async (userData) => {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+  // クライアント側バリデーション
+  if (!userData.username || !userData.email || !userData.password) {
+    throw new Error('すべての項目を入力してください');
+  }
+
+  if (!validateEmail(userData.email)) {
+    throw new Error('有効なメールアドレスを入力してください');
+  }
+
+  if (!validatePassword(userData.password)) {
+    throw new Error('パスワードは6文字以上である必要があります');
+  }
+
+  // 入力サニタイゼーション
+  const sanitizedData = {
+    username: sanitizeInput(userData.username),
+    email: sanitizeInput(userData.email),
+    password: userData.password // パスワードはサニタイズしない
+  };
+
+  const response = await secureApiRequest(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify(sanitizedData)
   });
 
   const result = await response.json();
@@ -41,14 +102,29 @@ export const register = async (userData) => {
   return result.data;
 };
 
-// ログイン
+// ログイン（セキュリティ強化版）
 export const login = async (credentials) => {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  // クライアント側バリデーション
+  if (!credentials.email || !credentials.password) {
+    throw new Error('メールアドレスとパスワードを入力してください');
+  }
+
+  if (!validateEmail(credentials.email)) {
+    throw new Error('有効なメールアドレスを入力してください');
+  }
+
+  // 入力サニタイゼーション
+  const sanitizedCredentials = {
+    email: sanitizeInput(credentials.email),
+    password: credentials.password // パスワードはサニタイズしない
+  };
+
+  const response = await secureApiRequest(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(credentials)
+    body: JSON.stringify(sanitizedCredentials)
   });
 
   const result = await response.json();

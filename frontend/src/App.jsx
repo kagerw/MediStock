@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useMedicine } from './hooks/useMedicine';
-import Header from './components/layout/Header';
-import ErrorAlert from './components/ui/ErrorAlert';
-import StockAlert from './components/ui/StockAlert';
-import AddMedicineForm from './components/medicine/AddMedicineForm';
-import MedicineList from './components/medicine/MedicineList';
-import MedicineHistory from './components/medicine/MedicineHistory';
-import LoginForm from './components/auth/LoginForm';
-import RegisterForm from './components/auth/RegisterForm';
-import LoadingSpinner from './components/ui/LoadingSpinner';
+import Header from './layout/Header';
+import ErrorAlert from './ui/ErrorAlert';
+import StockAlert from './ui/StockAlert';
+import AddMedicineForm from './medicine/AddMedicineForm';
+import MedicineList from './medicine/MedicineList';
+import MedicineHistory from './medicine/MedicineHistory';
+import LoginForm from './auth/LoginForm';
+import RegisterForm from './auth/RegisterForm';
+import LoadingSpinner from './ui/LoadingSpinner';
 
 function App() {
   const [showAddForm, setShowAddForm] = useState(false);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-const StockAlert = ({ lowStockMedicines, outOfStockMedicines }) => {
+const StockAlert = ({ lowStockMedicines = [], outOfStockMedicines = [] }) => {
   if (lowStockMedicines.length === 0 && outOfStockMedicines.length === 0) {
     return null;
   }

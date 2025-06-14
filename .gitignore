@@ -36,6 +36,14 @@ coverage/
 # nyc test coverage
 .nyc_output/
 
+# Vitest coverage
+coverage/
+test-results/
+
+# Test cache
+.vitest/
+.cache/
+
 # Dependency directories
 jspm_packages/
 
@@ -54,6 +62,50 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+# Vite specific
+.vite/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Temporary folders
+tmp/
+temp/
+
+# Lock files (choose one based on package manager preference)
+# Uncomment the one you don't use
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Cloudflare Workers
+.wrangler/
+wrangler.toml.bak
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# Storybook build outputs
+storybook-static/
+
+# Local Netlify folder
+.netlify/
+
+# Vercel
+.vercel/
+
+# Turbo
+.turbo/
+
+# Next.js (if used)
+.next/
+out/
+
 # IDE files
 .vscode/
 .idea/
@@ -69,3 +121,48 @@ jspm_packages/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Windows
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Editor backups
+*.bak
+*.backup
+*.orig
+*.rej
+
+# Temporary files
+*.tmp
+*.temp
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Local development
+.local/
+.history/
+
+# Debug files
+debug.log
+error.log
+
+# Performance monitoring
+.clinic/
+.0x/
+
+# Profiling
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
+
+# Misc
+.sass-cache/
+connect.lock
+typings/
