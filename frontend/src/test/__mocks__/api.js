@@ -41,6 +41,11 @@ export const deleteMedicine = vi.fn().mockResolvedValue({
   message: '薬を削除しました'
 })
 
+export const addStock = vi.fn().mockResolvedValue({
+  success: true,
+  message: '在庫を追加しました'
+})
+
 // モック関数をリセットするヘルパー
 export const resetApiMocks = () => {
   vi.clearAllMocks()
@@ -63,4 +68,5 @@ export const resetApiMocks = () => {
   })
   takeMedicine.mockResolvedValue({ success: true, message: '服用を記録しました' })
   deleteMedicine.mockResolvedValue({ success: true, message: '薬を削除しました' })
+  addStock.mockResolvedValue({ success: true, message: '在庫を追加しました' })
 }

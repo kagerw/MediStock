@@ -166,3 +166,6 @@ error.log
 .sass-cache/
 connect.lock
 typings/
+
+# Auth related files
+auth.seq
