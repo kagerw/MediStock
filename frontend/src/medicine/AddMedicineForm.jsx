@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
-const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
+const AddMedicineForm = ({ onAdd, onCancel, loading, initialData = null }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    name: initialData?.name || '',
     quantity: '',
-    dosage: '',
-    frequency: '',
-    notes: ''
+    dosage: initialData?.dosage || '',
+    frequency: initialData?.frequency || '',
+    notes: initialData?.notes || ''
   });
 
   const handleSubmit = async () => {
@@ -28,7 +28,9 @@ const AddMedicineForm = ({ onAdd, onCancel, loading }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">新しい薬を追加</h2>
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        {initialData ? '薬を追加処方' : '新しい薬を追加'}
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="medicine-name" className="block text-sm font-medium text-gray-700 mb-1">薬の名前 *</label>

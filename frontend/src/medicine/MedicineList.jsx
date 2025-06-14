@@ -1,7 +1,7 @@
 import React from 'react';
 import MedicineCard from './MedicineCard';
 
-const MedicineList = ({ medicines, onTake, onDelete, loading }) => {
+const MedicineList = ({ medicines, onTake, onDelete, onAddPrescription, loading }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">現在の薬一覧</h2>
@@ -15,6 +15,7 @@ const MedicineList = ({ medicines, onTake, onDelete, loading }) => {
               medicine={medicine}
               onTake={onTake}
               onDelete={onDelete}
+              onAddPrescription={onAddPrescription}
               loading={loading}
             />
           ))}

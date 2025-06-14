@@ -70,6 +70,7 @@ function App() {
 function AuthenticatedApp({ user, onLogout }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [prescriptionData, setPrescriptionData] = useState(null);
 
   const {
     medicines,
@@ -80,6 +81,7 @@ function AuthenticatedApp({ user, onLogout }) {
     outOfStockMedicines,
     setError,
     handleAddMedicine,
+    handleAddStock,
     handleTakeMedicine,
     handleDeleteMedicine,
     refreshData
@@ -94,15 +96,31 @@ function AuthenticatedApp({ user, onLogout }) {
   };
 
   const handleAddMedicineSuccess = async (medicineData) => {
-    const success = await handleAddMedicine(medicineData);
+    let success;
+    
+    // 追加処方の場合は既存薬に在庫を追加
+    if (prescriptionData) {
+      success = await handleAddStock(prescriptionData.id, medicineData.quantity, medicineData.notes);
+    } else {
+      // 新規薬の場合は新しい薬を追加
+      success = await handleAddMedicine(medicineData);
+    }
+    
     if (success) {
       setShowAddForm(false);
+      setPrescriptionData(null);
     }
     return success;
   };
 
   const handleCancelAddForm = () => {
     setShowAddForm(false);
+    setPrescriptionData(null);
+  };
+
+  const handleAddPrescription = (medicine) => {
+    setPrescriptionData(medicine);
+    setShowAddForm(true);
   };
 
   const handleClearError = () => {
@@ -144,6 +162,7 @@ function AuthenticatedApp({ user, onLogout }) {
             onAdd={handleAddMedicineSuccess}
             onCancel={handleCancelAddForm}
             loading={loading}
+            initialData={prescriptionData}
           />
         )}
 
@@ -152,6 +171,7 @@ function AuthenticatedApp({ user, onLogout }) {
           medicines={medicines}
           onTake={handleTakeMedicine}
           onDelete={handleDeleteMedicine}
+          onAddPrescription={handleAddPrescription}
           loading={loading}
         />
 

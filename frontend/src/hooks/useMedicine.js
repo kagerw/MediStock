@@ -57,6 +57,29 @@ export const useMedicine = () => {
     }
   };
 
+  // 既存の薬に在庫を追加
+  const handleAddStock = async (id, quantity, notes) => {
+    if (!quantity || quantity <= 0) {
+      setError('追加する数量は必須です');
+      return false;
+    }
+
+    try {
+      setLoading(true);
+      await api.addStock(id, quantity, notes);
+      await loadMedicines();
+      await loadHistory();
+      setError('');
+      return true;
+    } catch (err) {
+      setError(err.message || '在庫の追加に失敗しました');
+      console.error('Add stock error:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 薬を服用
   const handleTakeMedicine = async (id, medicineName, currentQuantity) => {
     if (currentQuantity <= 0) {
@@ -126,6 +149,7 @@ export const useMedicine = () => {
     outOfStockMedicines,
     setError,
     handleAddMedicine,
+    handleAddStock,
     handleTakeMedicine,
     handleDeleteMedicine,
     refreshData

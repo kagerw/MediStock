@@ -1,7 +1,7 @@
 import React from 'react';
-import { Minus } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 
-const MedicineCard = ({ medicine, onTake, onDelete, loading }) => {
+const MedicineCard = ({ medicine, onTake, onDelete, onAddPrescription, loading }) => {
   const getCardStyle = () => {
     if (medicine.quantity === 0) {
       return 'border-red-300 bg-red-50';
@@ -35,18 +35,28 @@ const MedicineCard = ({ medicine, onTake, onDelete, loading }) => {
         <p className="text-sm text-gray-600 mb-2">メモ: {medicine.notes}</p>
       )}
       <p className="text-xs text-gray-500 mb-3">追加日: {medicine.added_date}</p>
-      <button
-        onClick={() => onTake(medicine.id, medicine.name, medicine.quantity)}
-        disabled={medicine.quantity === 0 || loading}
-        className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-          medicine.quantity === 0 || loading
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-green-600 text-white hover:bg-green-700'
-        }`}
-      >
-        <Minus className="w-4 h-4" />
-        服用する
-      </button>
+      <div className="space-y-2">
+        <button
+          onClick={() => onTake(medicine.id, medicine.name, medicine.quantity)}
+          disabled={medicine.quantity === 0 || loading}
+          className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            medicine.quantity === 0 || loading
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-green-600 text-white hover:bg-green-700'
+          }`}
+        >
+          <Minus className="w-4 h-4" />
+          服用する
+        </button>
+        <button
+          onClick={() => onAddPrescription(medicine)}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          <Plus className="w-4 h-4" />
+          追加処方
+        </button>
+      </div>
     </div>
   );
 };
