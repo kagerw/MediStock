@@ -1,14 +1,10 @@
 name = "medistock"
 main = "workers/medicine-api/src/index.ts"
 compatibility_date = "2025-06-07"
-compatibility_flags = ["global_fetch_strictly_public"]
-node_compat = true
-
-[env.production]
-name = "react-medistock-prod"
-
-[env.staging]
-name = "react-medistock-staging"
+compatibility_flags = [
+    "global_fetch_strictly_public",
+    "nodejs_compat"
+]
 
 [[d1_databases]]
 binding = "DB"
