@@ -1,4 +1,4 @@
-name = "react-medistock"
+name = "medistock"
 main = "workers/medicine-api/src/index.ts"
 compatibility_date = "2025-06-07"
 compatibility_flags = ["global_fetch_strictly_public"]
@@ -15,7 +15,8 @@ database_name = "medicine-db"
 database_id = "ea0c9e45-ba2d-41c4-9c73-8ecd1aa631d3"
 
 [assets]
-directory = "frontend/dist"
+directory = "./frontend/dist"
+node_compat = true
 
 [observability]
 enabled = true
