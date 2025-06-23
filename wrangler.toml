@@ -7,7 +7,7 @@ compatibility_flags = [
 ]
 
 [[d1_databases]]
-binding = "DB"
+binding = "D1"
 database_name = "medicine-db"
 database_id = "ea0c9e45-ba2d-41c4-9c73-8ecd1aa631d3"
 
