@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8787/api';
+const API_BASE_URL = import.meta.env.DEV
+  ? 'http://127.0.0.1:8787/api' // 開発モード(npm run dev)のときはこちら
+  : '/api';                     // 本番ビルド(npm run build)のときはこちら
 
 // セキュリティ強化：入力サニタイゼーション
 const sanitizeInput = (input) => {
